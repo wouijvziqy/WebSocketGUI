@@ -79,7 +79,7 @@ public class WsService extends WsClient {
 
     public void sendReq(String req) {
         if (wsService.getReadyState() == ReadyState.OPEN) {
-            super.getLogTextArea().appendText(LogUtil.SEND_REQ + req + LogUtil.SUFFIX);
+            logTextArea.appendText(LogUtil.SEND_REQ + req + LogUtil.SUFFIX);
             wsService.send(req);
             resTextArea.clear();
         } else {

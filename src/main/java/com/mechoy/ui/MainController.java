@@ -1,24 +1,15 @@
 package com.mechoy.ui;
 
-import com.mechoy.core.WsClient;
 import com.mechoy.core.service.MenuService;
 import com.mechoy.core.service.WsService;
 import com.mechoy.util.LogUtil;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
-import javafx.stage.Stage;
 import org.java_websocket.enums.ReadyState;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -51,8 +42,8 @@ public class MainController {
     @FXML
     protected void onOpenConnButtonClick() {
         String targetAddress = targetAddressTextField.getText();
-        if (targetAddress.length() > 3) {
-            if (!targetAddress.substring(0, 3).equals("ws:") && !targetAddress.substring(0, 4).equals("wss:")) {
+        if (targetAddress.length() > 5) {
+            if (!targetAddress.substring(0, 5).equals("ws://") && !targetAddress.substring(0, 5).equals("wss://")) {
                 logTextArea.appendText(LogUtil.ADDRESS_ERROR);
                 return;
             }
@@ -81,16 +72,21 @@ public class MainController {
         }
     }
 
-    // 发送请求
+    // 发送请求,在未建立连接时可直接发送请求，但需要先建立连接
     @FXML
     protected void onSendButtonClick() {
-        if (wsService.getReadyState() != ReadyState.OPEN) {
-            logTextArea.appendText(LogUtil.CONN_NOT_ESTABLISHED);
-            logTextArea.appendText(LogUtil.TRY_ESTABLISH);
+        if (wsService != null) {
+            if (wsService.getReadyState() != ReadyState.OPEN) {
+                logTextArea.setText(logTextArea.getText() + LogUtil.CONN_NOT_ESTABLISHED);
+//                logTextArea.appendText(LogUtil.CONN_NOT_ESTABLISHED);
+                logTextArea.appendText(LogUtil.TRY_ESTABLISH);
+                onOpenConnButtonClick();
+            }
+            if (wsService.getReadyState()==ReadyState.OPEN) {
+                wsService.sendReq(reqTextArea.getText());
+            }
+        }else {
             onOpenConnButtonClick();
-        }
-        if (wsService.getReadyState()==ReadyState.OPEN) {
-            wsService.sendReq(reqTextArea.getText());
         }
     }
 
